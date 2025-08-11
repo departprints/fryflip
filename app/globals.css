@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Prefer system UI stack for fast rendering */
-:root { color-scheme: light; }
-
 @media print {
   body { color: #0f172a; }
   header, section:not(:first-of-type), footer, .mini-bar { display: none !important; }
