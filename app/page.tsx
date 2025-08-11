@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Info, Copy, Printer, RefreshCw } from "lucide-react";
-import AdSlot from "@/components/AdSlot";
 import { convertToAirFryer, formatMinutes, parseTime } from "@/lib/conversion";
 
 export default function Page() {
@@ -41,13 +40,6 @@ export default function Page() {
     setDoneness("standard");
     setThickness("normal");
   }
-
-  useEffect(() => {
-    try {
-      window.adsbygoogle = window.adsbygoogle || [];
-      window.adsbygoogle.push({});
-    } catch {}
-  }, []);
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
@@ -162,7 +154,7 @@ export default function Page() {
               <div className="text-2xl font-bold">{formatMinutes(result.minutes)}</div>
             </div>
             <div>
-              <div className="text-xs uppercase text-gray-500">Method</div>
+              <div className="text-xs uppercase text-gray-500">Method</</div>
               <div className="text-base">Preheat if your model requires it. Shake/turn halfway.</div>
             </div>
           </div>
@@ -175,8 +167,6 @@ export default function Page() {
             ))}
           </ul>
         </div>
-
-        <AdSlot id="ad-top" slot="fryflip-top" />
       </section>
 
       <section className="mt-10 space-y-4">
@@ -191,8 +181,6 @@ export default function Page() {
             Always follow food-safety guidance for internal temperatures. This tool provides estimates only; appliances vary widely.
           </p>
         </div>
-
-        <AdSlot id="ad-mid" slot="fryflip-mid" />
       </section>
 
       <section className="mt-10 space-y-4">
@@ -209,8 +197,6 @@ export default function Page() {
           <summary className="cursor-pointer font-medium">Why do my results differ?</summary>
           <p className="mt-2 text-gray-700">Model wattage, basket size, food thickness, and load size can change results. Our adjustments are a starting point.</p>
         </details>
-
-        <AdSlot id="ad-footer" slot="fryflip-footer" />
       </section>
 
       <script
