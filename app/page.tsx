@@ -236,7 +236,7 @@ export default function Page() {
               {timerSec === null ? (
                 <button onClick={startTimer} className="rounded-xl border border-slate-900 px-3 py-2 text-sm font-medium hover:bg-slate-900 hover:text-white"><TimerIcon className="mr-1 inline h-4 w-4" />Start check timer</button>
               ) : (
-                <span className="text-sm text-slate-700">Time left: <span className="font-semibold tabular-nums">{mm}:{ss}</span>{(!halfAnnounced and timerStart>0 and timerSec<=Math.floor(timerStart/2))? " • Shake now": ""}</span>
+                <span className="text-sm text-slate-700">Time left: <span className="font-semibold tabular-nums">{mm}:{ss}</span> {(!halfAnnounced && timerStart > 0 && timerSec !== null && timerSec <= Math.floor(timerStart / 2)) ? " • Shake now" : ""}</span>
               )}
             </div>
             {/* Top ad (under results) */}
