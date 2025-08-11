@@ -13,11 +13,11 @@ function sendMetric(name: string, data?: Record<string, unknown>) {
 }
 
 const PRESETS = [
+  { key: "ex1", label: "425°F • 25m", tF: 425, m: 25, don: "standard", th: "normal", conv: false },
+  { key: "ex2", label: "375°F • 40m", tF: 375, m: 40, don: "standard", th: "normal", conv: false },
   { key: "fries", label: "Fries", tF: 400, m: 16, don: "standard", th: "thin", conv: false },
   { key: "wings", label: "Wings", tF: 390, m: 22, don: "darker", th: "thick", conv: false },
-  { key: "nuggets", label: "Nuggets", tF: 400, m: 12, don: "standard", th: "normal", conv: false },
   { key: "broccoli", label: "Broccoli", tF: 380, m: 10, don: "lighter", th: "normal", conv: true },
-  { key: "salmon", label: "Salmon", tF: 390, m: 10, don: "standard", th: "thick", conv: false },
 ] as const;
 
 type Doneness = "lighter" | "standard" | "darker";
@@ -34,7 +34,9 @@ export default function Page() {
   const [timerSec, setTimerSec] = useState<number | null>(null);
   const [timerStart, setTimerStart] = useState<number>(0);
   const [halfAnnounced, setHalfAnnounced] = useState(false);
+  const [showMini, setShowMini] = useState(false);
 
+  // Read hash on first load
   useEffect(() => {
     try {
       const hash = new URL(window.location.href).hash.replace(/^#/, "");
@@ -55,19 +57,23 @@ export default function Page() {
     } catch {}
   }, []);
 
+  // Keep hash in sync
   useEffect(() => {
     try {
       const params = new URLSearchParams({
-        u: tempUnit,
-        t: String(ovenTemp === "" ? 0 : ovenTemp),
-        time: ovenTime,
-        conv: isConvectionRecipe ? "1" : "0",
-        don: doneness,
-        th: thickness,
+        u: tempUnit, t: String(ovenTemp === "" ? 0 : ovenTemp), time: ovenTime,
+        conv: isConvectionRecipe ? "1" : "0", don: doneness, th: thickness,
       });
       history.replaceState(null, "", `#${params.toString()}`);
     } catch {}
   }, [tempUnit, ovenTemp, ovenTime, isConvectionRecipe, doneness, thickness]);
+
+  // Toggle sticky mini-result bar
+  useEffect(() => {
+    const onScroll = () => setShowMini(window.scrollY > 220);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const result = useMemo(() => {
     const minutes = parseTime(ovenTime);
@@ -95,7 +101,8 @@ export default function Page() {
   }
   function fToC(f: number) { return Math.round(((f - 32) * 5) / 9); }
   function applyPreset(key: string) {
-    const p = PRESETS.find((x) => x.key === key); if (!p) return;
+    const p = PRESETS.find((x) => x.key === key);
+    if (!p) return;
     const t = tempUnit === "F" ? p.tF : fToC(p.tF);
     setOvenTemp(t); setOvenTime(String(p.m)); setIsConvectionRecipe(p.conv);
     setDoneness(p.don as Doneness); setThickness(p.th as Thickness);
@@ -108,6 +115,8 @@ export default function Page() {
     sendMetric("timer_start", { totalSec });
   }
   function stopTimer() { setTimerSec(null); setHalfAnnounced(false); sendMetric("timer_stop"); }
+
+  // Timer tick
   useEffect(() => {
     if (timerSec === null) return;
     const id = setInterval(() => {
@@ -122,6 +131,7 @@ export default function Page() {
     return () => clearInterval(id);
   }, [timerSec, timerStart, halfAnnounced]);
 
+  // Trigger AdSense in SPA
   useEffect(() => {
     try {
       const w = window as unknown as { adsbygoogle: Array<Record<string, unknown>> };
@@ -134,198 +144,171 @@ export default function Page() {
   const ss = timerSec !== null ? String(timerSec % 60).padStart(2, "0") : "00";
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10">
-      {/* HERO */}
-      <header className="mb-8">
-        <div className="card-gradient shadow-lg">
-          <div className="card-inner p-6 md:p-8">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-rose-500 text-white font-bold">FF</div>
-              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">FryFlip</h1>
-            </div>
-            <p className="mt-2 text-slate-700">Turn any oven recipe into air-fryer settings in one click. Rule-of-thumb estimates—always check doneness early.</p>
-
-            {/* Quick presets */}
-            <div className="mt-4 -mx-1 flex flex-wrap gap-2">
-              {PRESETS.map((p) => (
-                <button key={p.key} onClick={() => applyPreset(p.key)} className="brand-chip">
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          </div>
+    <main className="mx-auto max-w-5xl px-4 py-10">
+      {/* Title & Presets */}
+      <header className="mb-6">
+        <h1 className="text-3xl font-bold tracking-tight">Oven → Air-Fryer Converter</h1>
+        <p className="mt-2 text-slate-600">Instantly convert oven recipes to air-fryer settings. These are starting-point estimates—always check early.</p>
+        <div className="mt-3 -mx-1 flex flex-wrap gap-2">
+          {PRESETS.map((p) => (
+            <button key={p.key} onClick={() => applyPreset(p.key)} className="chip">{p.label}</button>
+          ))}
         </div>
       </header>
 
-      {/* INPUT + RESULT */}
-      <section className="card-gradient">
-        <div className="card-inner p-5 md:p-6">
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            {/* Temp Unit */}
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Temperature unit</label>
-              <div className="inline-flex overflow-hidden rounded-xl border border-slate-300">
+      {/* Two-column "From → To" */}
+      <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* Left: Inputs */}
+        <div className="card p-5">
+          <h2 className="mb-4 text-lg font-semibold">From oven</h2>
+
+          <div className="grid grid-cols-1 gap-5">
+            {/* Temp unit + input */}
+            <div className="grid grid-cols-[auto,1fr] items-center gap-3">
+              <div className="inline-flex overflow-hidden rounded-lg border border-slate-300">
                 {(["F", "C"] as const).map((u) => (
-                  <button
-                    key={u}
-                    onClick={() => setTempUnit(u)}
-                    className={`px-3 py-2 text-sm ${tempUnit === u ? "bg-slate-900 text-white" : "bg-white text-slate-800"}`}
-                  >
+                  <button key={u} onClick={() => setTempUnit(u)}
+                    className={`px-3 py-2 text-sm ${tempUnit === u ? "bg-slate-900 text-white" : "bg-white text-slate-800"}`}>
                     °{u}
                   </button>
                 ))}
               </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">Oven temperature</label>
+                <input inputMode="numeric" pattern="[0-9]*" value={ovenTemp}
+                  onChange={(e) => setOvenTemp(e.target.value === "" ? "" : Number(e.target.value))}
+                  className="input" placeholder={tempUnit === "F" ? "e.g., 400" : "e.g., 200"} />
+              </div>
             </div>
-            {/* Oven Temp */}
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Oven temperature</label>
-              <input
-                inputMode="numeric"
-                pattern="[0-9]*"
-                value={ovenTemp}
-                onChange={(e) => setOvenTemp(e.target.value === "" ? "" : Number(e.target.value))}
-                className="brand-input"
-                placeholder={tempUnit === "F" ? "e.g., 400" : "e.g., 200"}
-              />
-            </div>
-            {/* Oven Time */}
+
+            {/* Time */}
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-700">Oven time</label>
-              <input
-                value={ovenTime}
-                onChange={(e) => setOvenTime(e.target.value)}
-                className="brand-input"
-                placeholder="minutes (e.g., 30 or 1:15)"
-              />
-              <p className="mt-1 text-xs text-slate-500">Accepts <strong>30</strong> (min), <strong>30:00</strong>, or <strong>1:15</strong>.</p>
+              <input value={ovenTime} onChange={(e) => setOvenTime(e.target.value)} className="input" placeholder="minutes (e.g., 30 or 1:15)" />
+              <p className="mt-1 text-xs text-slate-500">Accepts <strong>30</strong>, <strong>30:00</strong>, or <strong>1:15</strong>.</p>
             </div>
-            {/* Convection recipe? */}
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Recipe type</label>
-              <div className="flex items-center gap-3 rounded-xl border border-slate-300 p-3">
-                <input
-                  id="conv"
-                  type="checkbox"
-                  checked={isConvectionRecipe}
-                  onChange={(e) => setIsConvectionRecipe(e.target.checked)}
-                  className="h-4 w-4 accent-rose-500"
-                />
-                <label htmlFor="conv" className="text-sm text-slate-700">This oven recipe already uses <strong>convection (fan)</strong></label>
+
+            {/* Convection? */}
+            <div className="flex items-center gap-3 rounded-lg border border-slate-300 p-3">
+              <input id="conv" type="checkbox" checked={isConvectionRecipe} onChange={(e) => setIsConvectionRecipe(e.target.checked)} className="h-4 w-4 accent-indigo-600" />
+              <label htmlFor="conv" className="text-sm">This oven recipe already uses <strong>convection (fan)</strong></label>
+            </div>
+
+            {/* Preferences */}
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">Doneness</label>
+                <select value={doneness} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDoneness(e.target.value as Doneness)} className="input">
+                  <option value="lighter">Lighter</option>
+                  <option value="standard">Standard</option>
+                  <option value="darker">Darker / extra‑crisp</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">Thickness</label>
+                <select value={thickness} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setThickness(e.target.value as Thickness)} className="input">
+                  <option value="thin">Thin (e.g., fries)</option>
+                  <option value="normal">Normal (e.g., nuggets, veg)</option>
+                  <option value="thick">Thick (e.g., chicken breast)</option>
+                </select>
               </div>
             </div>
-            {/* Doneness */}
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Doneness preference</label>
-              <select
-                value={doneness}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDoneness(e.target.value as Doneness)}
-                className="brand-input"
-              >
-                <option value="lighter">Lighter</option>
-                <option value="standard">Standard</option>
-                <option value="darker">Darker / extra-crisp</option>
-              </select>
-            </div>
-            {/* Thickness */}
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Food thickness</label>
-              <select
-                value={thickness}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setThickness(e.target.value as Thickness)}
-                className="brand-input"
-              >
-                <option value="thin">Thin (e.g., fries)</option>
-                <option value="normal">Normal (e.g., nuggets, veg)</option>
-                <option value="thick">Thick (e.g., chicken breast)</option>
-              </select>
-            </div>
+          </div>
+        </div>
+
+        {/* Right: Result */}
+        <div className="card p-5" ref={cardRef}>
+          <h2 className="mb-4 text-lg font-semibold">Your Air‑Fryer Settings</h2>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div><div className="text-xs uppercase text-slate-500">Temperature</div><div className="text-2xl font-bold">{result.tempDisplay}</div></div>
+            <div><div className="text-xs uppercase text-slate-500">Time</div><div className="text-2xl font-bold">{formatMinutes(result.minutes)}</div></div>
+            <div><div className="text-xs uppercase text-slate-500">Method</div><div className="text-base">Preheat if needed. Shake/turn halfway.</div></div>
           </div>
 
-          {/* Result Card */}
-          <div ref={cardRef} className="mt-6 card">
-            <div className="flex items-start justify-between gap-3">
-              <h2 className="text-xl font-semibold">Your Air-Fryer Settings</h2>
-              <div className="flex items-center gap-2">
-                <button onClick={copyCard} className="brand-btn" title="Copy"><Copy className="h-4 w-4" /><span>Copy</span></button>
-                <button onClick={() => window.print()} className="brand-btn" title="Print"><Printer className="h-4 w-4" /><span>Print</span></button>
-                <button onClick={resetAll} className="brand-btn" title="Reset"><RefreshCw className="h-4 w-4" /><span>Reset</span></button>
-                <button onClick={copyShareLink} className="brand-btn" title="Share link"><Share2 className="h-4 w-4" /><span>Share</span></button>
-              </div>
-            </div>
+          <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-slate-700">
+            <li>These are rule‑of‑thumb estimates. Check doneness early, especially for thick foods.</li>
+            <li>If your oven recipe already used convection, adjustments are smaller.</li>
+            {result.notes.map((n, i) => (<li key={i}>{n}</li>))}
+          </ul>
 
-            <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div><div className="text-xs uppercase text-slate-500">Temperature</div><div className="text-2xl font-bold">{result.tempDisplay}</div></div>
-              <div><div className="text-xs uppercase text-slate-500">Time</div><div className="text-2xl font-bold">{formatMinutes(result.minutes)}</div></div>
-              <div><div className="text-xs uppercase text-slate-500">Method</div><div className="text-base">Preheat if your model requires it. Shake/turn halfway.</div></div>
-            </div>
-
-            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-slate-700">
-              <li>These are rule-of-thumb estimates. Check doneness early, especially for thick foods.</li>
-              <li>If your oven recipe already used convection, adjustments are smaller.</li>
-              {result.notes.map((n, i) => (<li key={i}>{n}</li>))}
-            </ul>
-
-            {/* Timer controls */}
-            <div className="mt-4 flex items-center gap-3">
-              {timerSec === null ? (
-                <button onClick={startTimer} className="brand-btn"><TimerIcon className="h-4 w-4" /> Start check timer</button>
-              ) : (
-                <>
-                  <span className="text-sm text-slate-700">Time left: <span className="font-semibold">{mm}:{ss}</span>{!halfAnnounced && timerStart>0 && timerSec <= Math.floor(timerStart/2) ? " • Shake now" : ""}</span>
-                  <button onClick={stopTimer} className="brand-btn">Stop</button>
-                </>
-              )}
-            </div>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button onClick={copyCard} className="btn"><Copy className="h-4 w-4" />Copy</button>
+            <button onClick={() => window.print()} className="btn"><Printer className="h-4 w-4" />Print</button>
+            <button onClick={resetAll} className="btn"><RefreshCw className="h-4 w-4" />Reset</button>
+            <button onClick={copyShareLink} className="btn"><Share2 className="h-4 w-4" />Share</button>
+            {timerSec === null ? (
+              <button onClick={startTimer} className="btn"><TimerIcon className="h-4 w-4" />Start check timer</button>
+            ) : (
+              <button onClick={stopTimer} className="btn">Stop timer</button>
+            )}
           </div>
 
-          {/* Ad #1 */}
-          <AdSlot id="ad-top" slot="fryflip-top" />
+          {/* Ad #1 under results (high viewability) */}
+          <AdSlot id="ad-under-result" slot="fryflip-top" />
         </div>
       </section>
 
-      {/* Explainer */}
-      <section className="mt-10">
-        <div className="card">
-          <h3 className="text-xl font-semibold">How FryFlip calculates</h3>
-          <p className="mt-2 text-slate-700">
-            FryFlip applies common kitchen heuristics: reduce oven temperature by ~{tempUnit === "F" ? "25°F" : "15°C"} and reduce time by ~20%. If your original recipe already
-            used a convection (fan) oven, we use smaller adjustments. Doneness and thickness nudge for preference and size.
-          </p>
-          <div className="mt-3 flex items-start gap-2 rounded-xl border border-slate-200 bg-rose-50 p-3 text-sm text-slate-700">
-            <Info className="mt-0.5 h-4 w-4 text-rose-500" />
-            <p>Always follow food-safety guidance for internal temperatures. This tool provides estimates only; appliances vary widely.</p>
-          </div>
+      {/* Calculator Use / Explainer */}
+      <section className="mt-10 card p-5">
+        <h3 className="text-lg font-semibold">Calculator Use</h3>
+        <p className="mt-2 text-slate-700">
+          FryFlip reduces oven temperature by ~{tempUnit === "F" ? "25°F" : "15°C"} and time by ~20% as a starting point. If your recipe already uses a convection/fan oven,
+          adjustments are smaller. Thickness & doneness settings nudge time up or down by ~5%.
+        </p>
+        <div className="mt-3 flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+          <Info className="mt-0.5 h-4 w-4 text-indigo-600" />
+          <p>Always follow food-safety guidance for internal temperatures. Appliances vary widely—check early.</p>
         </div>
 
-        {/* Ad #2 */}
-        <AdSlot id="ad-mid" slot="fryflip-mid" />
+        {/* Ad #2 after Calculator Use */}
+        <AdSlot id="ad-after-use" slot="fryflip-mid" />
       </section>
 
       {/* FAQ */}
-      <section className="mt-10">
-        <div className="card">
-          <h3 className="text-xl font-semibold">FAQ</h3>
-          <details className="mt-3 rounded-xl border border-slate-200 p-4 open:bg-orange-50/60">
-            <summary className="cursor-pointer font-medium">Can I convert 425°F for 25 minutes to air fryer?</summary>
-            <p className="mt-2 text-slate-700">As a rule of thumb, try ~400°F for ~20 minutes, check early at 10 minutes and shake halfway. Use the tool for your unit/time.</p>
-          </details>
-          <details className="mt-3 rounded-xl border border-slate-200 p-4 open:bg-orange-50/60">
-            <summary className="cursor-pointer font-medium">Do I need to preheat?</summary>
-            <p className="mt-2 text-slate-700">Some models recommend it. If yours does, preheat briefly before starting. Otherwise, start the timer and check early.</p>
-          </details>
-          <details className="mt-3 rounded-xl border border-slate-200 p-4 open:bg-orange-50/60">
-            <summary className="cursor-pointer font-medium">Why are times different from my friend’s?</summary>
-            <p className="mt-2 text-slate-700">Model wattage, basket size, food thickness, and load size affect results. Our adjustments are a starting point.</p>
-          </details>
-          <details className="mt-3 rounded-xl border border-slate-200 p-4 open:bg-orange-50/60">
-            <summary className="cursor-pointer font-medium">What about baking (cakes, breads)?</summary>
-            <p className="mt-2 text-slate-700">Air fryers behave differently from ovens for delicate bakes. Use caution and check early.</p>
-          </details>
-        </div>
+      <section className="mt-10 card p-5">
+        <h3 className="text-lg font-semibold">FAQ</h3>
+        <details className="mt-3 rounded-lg border border-slate-200 p-4">
+          <summary className="cursor-pointer font-medium">Can I convert 425°F for 25 minutes to air fryer?</summary>
+          <p className="mt-2 text-slate-700">Try ~400°F for ~20 minutes; check early and shake halfway. Use the inputs above to personalize.</p>
+        </details>
+        <details className="mt-3 rounded-lg border border-slate-200 p-4">
+          <summary className="cursor-pointer font-medium">Do I need to preheat?</summary>
+          <p className="mt-2 text-slate-700">Some models recommend it. If yours does, preheat briefly before starting. Otherwise, start and check early.</p>
+        </details>
+        <details className="mt-3 rounded-lg border border-slate-200 p-4">
+          <summary className="cursor-pointer font-medium">Why are times different from my friend’s?</summary>
+          <p className="mt-2 text-slate-700">Model wattage, basket size, thickness, and load size vary. Our numbers are a starting point.</p>
+        </details>
 
-        {/* Ad #3 */}
+        {/* Ad #3 bottom */}
         <AdSlot id="ad-footer" slot="fryflip-footer" />
       </section>
+
+      {/* Sticky mini-result bar (mobile only) */}
+      <div className={`mini-bar fixed inset-x-0 bottom-0 z-40 md:hidden transition-transform duration-300 ${showMini ? "translate-y-0" : "translate-y-full"}`}>
+        <div className="mx-auto max-w-5xl px-3 pb-3">
+          <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white/95 px-3 py-2 shadow-lg backdrop-blur">
+            <div className="text-sm">
+              <span className="font-semibold">{result.tempDisplay}</span>
+              <span className="mx-2">•</span>
+              <span className="font-semibold">{formatMinutes(result.minutes)}</span>
+              <span className="mx-2">•</span>
+              <span className="">Shake halfway</span>
+            </div>
+            {timerSec === null ? (
+              <button onClick={startTimer} className="btn px-2 py-1.5"><TimerIcon className="h-4 w-4" />Start</button>
+            ) : (
+              <span className="text-sm font-semibold tabular-nums">{mm}:{ss}</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <footer className="mt-16 border-t pt-8 text-sm text-slate-500">
+        <p>Not affiliated with any appliance brands. Estimates only. © {new Date().getFullYear()} FryFlip.</p>
+        <p className="mt-2">Made by <a className="underline" href="https://your-network.example">Your Micro-lab</a></p>
+      </footer>
 
       {/* JSON-LD */}
       <script type="application/ld+json" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify({
@@ -335,17 +318,11 @@ export default function Page() {
       })}} />
       <script type="application/ld+json" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify({
         "@context":"https://schema.org","@type":"FAQPage",mainEntity:[
-          {"@type":"Question","name":"Can I convert 425°F for 25 minutes to air fryer?","acceptedAnswer":{"@type":"Answer","text":"Try ~400°F for ~20 minutes; check early and shake halfway. Use the tool for specifics."}},
+          {"@type":"Question","name":"Can I convert 425°F for 25 minutes to air fryer?","acceptedAnswer":{"@type":"Answer","text":"Try ~400°F for ~20 minutes; check early and shake halfway. Use the inputs."}},
           {"@type":"Question","name":"Do I need to preheat?","acceptedAnswer":{"@type":"Answer","text":"Some models recommend it; preheat briefly if so."}},
-          {"@type":"Question","name":"Why are times different from my friend’s?","acceptedAnswer":{"@type":"Answer","text":"Model wattage, basket size, thickness, and load size vary; our numbers are a starting point."}},
-          {"@type":"Question","name":"What about baking (cakes, breads)?","acceptedAnswer":{"@type":"Answer","text":"Air fryers differ for delicate bakes—use caution and check early."}}
+          {"@type":"Question","name":"Why are times different from my friend’s?","acceptedAnswer":{"@type":"Answer","text":"Model wattage, basket size, thickness, and load size vary; our numbers are a starting point."}}
         ]
       })}} />
-
-      <footer className="mt-16 border-t pt-8 text-sm text-slate-500">
-        <p>Not affiliated with any appliance brands. Estimates only. © {new Date().getFullYear()} FryFlip.</p>
-        <p className="mt-2">Made by <a className="underline" href="https://your-network.example">Your Micro-lab</a></p>
-      </footer>
     </main>
   );
 }

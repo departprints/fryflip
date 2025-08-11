@@ -6,10 +6,12 @@ type Props = { id?: string; slot?: string };
 
 export default function AdSlot({ id, slot }: Props) {
   const internal = useId();
+
   useEffect(() => {
     try {
-      window.adsbygoogle = window.adsbygoogle || [];
-      window.adsbygoogle.push({});
+      const w = window as unknown as { adsbygoogle: Array<Record<string, unknown>> };
+      w.adsbygoogle = w.adsbygoogle || [];
+      w.adsbygoogle.push({});
     } catch {}
   }, []);
 
@@ -18,7 +20,7 @@ export default function AdSlot({ id, slot }: Props) {
       <ins
         id={id || internal}
         className="adsbygoogle block w-full max-w-[728px]"
-        style={{ display: "block", minHeight: 300 }}
+        style={{ display: "block", minHeight: 280 }}
         data-ad-client={process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-0000000000000000"}
         data-ad-slot={slot || "0000000000"}
         data-ad-format="auto"

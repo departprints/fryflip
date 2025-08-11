@@ -35,7 +35,6 @@ export function convertToAirFryer(i: Inputs) {
   const notes: string[] = [];
   if (!i.convectionRecipe) notes.push("Original recipe was conventional oven—bigger adjustment applied.");
   if (i.convectionRecipe) notes.push("Original recipe used convection—smaller adjustment applied.");
-
   return { minutes: airMinutes, tempDisplay, notes };
 }
 
@@ -73,9 +72,5 @@ function toNum(s: string) {
   const n = Number(s.replace(/[^0-9.]/g, ""));
   return isNaN(n) ? 0 : n;
 }
-function cToF(c: number) {
-  return (c * 9) / 5 + 32;
-}
-function fToC(f: number) {
-  return ((f - 32) * 5) / 9;
-}
+function cToF(c: number) { return (c * 9) / 5 + 32; }
+function fToC(f: number) { return ((f - 32) * 5) / 9; }
