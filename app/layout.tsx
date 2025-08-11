@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: "FryFlip — Oven→Air‑Fryer Converter",
     description:
       "Turn any oven recipe into air‑fryer settings in one click. Fast, mobile‑first, and CLS‑safe.",
-    url: "https://fryflip.example",
+    url: "https://fryflip.xyz",
     siteName: "FryFlip",
     images: [],
     type: "website",
