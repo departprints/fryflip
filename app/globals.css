@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Selection + print */
-::selection { background: #fecdd3; color: #0f172a; }
+/* Prefer system UI stack for fast rendering */
+:root { color-scheme: light; }
 
 @media print {
   body { color: #0f172a; }

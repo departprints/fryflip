@@ -3,11 +3,11 @@ import "./globals.css";
 import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: "FryFlip — Oven→Air-Fryer Converter",
-  description: "Turn any oven recipe into air-fryer settings in one click. Fast, mobile-first, and CLS-safe.",
+  title: "FryFlip — Oven→Air‑Fryer Converter",
+  description: "Turn any oven recipe into air‑fryer settings in one click. Fast, mobile‑first, and CLS‑safe.",
   openGraph: {
-    title: "FryFlip — Oven→Air-Fryer Converter",
-    description: "Turn any oven recipe into air-fryer settings in one click. Fast, mobile-first, and CLS-safe.",
+    title: "FryFlip — Oven→Air‑Fryer Converter",
+    description: "Turn any oven recipe into air‑fryer settings in one click. Fast, mobile‑first, and CLS‑safe.",
     url: "https://fryflip.xyz",
     siteName: "FryFlip",
     images: [],
@@ -17,8 +17,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f172a",
-  colorScheme: "light",
+  themeColor: "#111827",
   width: "device-width",
   initialScale: 1,
 };
@@ -28,7 +27,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
         <meta name="google-adsense-account" content={clientId} />
@@ -40,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           crossOrigin="anonymous"
         />
       </head>
-      <body className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-amber-50 text-slate-900 antialiased">
+      <body className="min-h-screen bg-white text-slate-900 antialiased">
         {children}
       </body>
     </html>

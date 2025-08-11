@@ -1,21 +1,26 @@
-# FryFlip — Vivid Theme (No @apply)
+# FryFlip — Minimal 2025 UI
 
-Purpose: fix Tailwind error `Cannot apply unknown utility class 'gap-2'` by removing all `@apply` usage.
-All styling is inline via className. Includes two‑column layout, colorful gradients, and sticky mobile bar.
+**What’s new**
+- Clean, modern layout (2025 feel): lots of white space, neutral palette, crisp borders
+- Two‑column layout on desktop; stacked on mobile
+- Sticky mini‑result bar on mobile
+- Three CLS‑safe AdSense slots (top/mid/bottom)
+- No Tailwind `@apply` usage; inline classes only
+- Type‑safe AdSense trigger; relaxed ESLint
 
-## Install
+## Apply
 ```bash
 cd ~/fryflip
-unzip -o ~/Downloads/fryflip_theme_vivid_noapply.zip -d .
+unzip -o ~/Downloads/fryflip_theme_2025_min.zip -d .
 npm install lucide-react
 npm run build
 git add -A
-git commit -m "Vivid theme without @apply (fix Tailwind gap-2 error)"
+git commit -m "Minimal 2025 UI refresh"
 git push
 vercel --prod
 ```
 
-Make sure Vercel env var is set:
+Set Vercel env var:
   NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-xxxxxxxxxxxxxxxx
 
-And update public/ads.txt with your publisher ID.
+Update `public/ads.txt` with your publisher ID.
