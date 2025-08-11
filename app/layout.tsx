@@ -4,12 +4,10 @@ import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "FryFlip — Oven→Air-Fryer Converter",
-  description:
-    "Turn any oven recipe into air-fryer settings in one click. Fast, mobile-first, and CLS-safe.",
+  description: "Turn any oven recipe into air-fryer settings in one click. Fast, mobile-first, and CLS-safe.",
   openGraph: {
     title: "FryFlip — Oven→Air-Fryer Converter",
-    description:
-      "Turn any oven recipe into air-fryer settings in one click. Fast, mobile-first, and CLS-safe.",
+    description: "Turn any oven recipe into air-fryer settings in one click. Fast, mobile-first, and CLS-safe.",
     url: "https://fryflip.xyz",
     siteName: "FryFlip",
     images: [],
@@ -19,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#111827",
+  themeColor: "#0f172a",
   colorScheme: "light",
   width: "device-width",
   initialScale: 1,
@@ -30,10 +28,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <meta name="google-adsense-account" content="ca-pub-3893604961345427"></meta>
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+        <meta name="google-adsense-account" content={clientId} />
         <Script
           id="adsbygoogle-init"
           async
@@ -42,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           crossOrigin="anonymous"
         />
       </head>
-      <body className="min-h-screen bg-white text-gray-900 antialiased">
+      <body className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white text-slate-900 antialiased selection:bg-rose-200 selection:text-slate-900">
         {children}
       </body>
     </html>

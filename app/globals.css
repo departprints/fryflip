@@ -2,9 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Print styles: show only the result card when printing */
+/* Brand utilities (no Tailwind config change required) */
+@layer components {
+  .brand-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white
+           bg-gradient-to-r from-amber-500 via-rose-500 to-fuchsia-600 shadow-sm hover:brightness-110 active:brightness-95
+           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-400;
+  }
+  .brand-chip {
+    @apply rounded-full border px-3 py-1.5 text-sm hover:shadow-sm transition
+           border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100;
+  }
+  .brand-input {
+    @apply w-full rounded-xl border border-slate-300 px-3 py-2 text-base outline-none
+           focus:ring-2 focus:ring-rose-400 focus:border-rose-300;
+  }
+  .card {
+    @apply rounded-3xl border border-slate-200 bg-white p-5 shadow-sm;
+  }
+  .card-gradient {
+    /* 1px gradient border frame */
+    background: linear-gradient(135deg, rgba(251,191,36,.7), rgba(244,114,182,.7), rgba(217,70,239,.7));
+    padding: 1px;
+    border-radius: 24px;
+  }
+  .card-inner {
+    @apply rounded-3xl bg-white;
+  }
+}
+
+/* Print: keep the result card only */
 @media print {
-  body { color: #111827; }
+  body { color: #0f172a; }
   header, section:not(:first-of-type), footer { display: none !important; }
   main { padding: 0 !important; }
 }
