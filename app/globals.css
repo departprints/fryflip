@@ -2,36 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
-  /* Vivid brand tokens */
-  .btn {
-    @apply inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium
-           text-white shadow-sm bg-gradient-to-r from-amber-500 via-rose-500 to-fuchsia-600
-           hover:brightness-110 active:brightness-95
-           focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2;
-  }
-  .chip {
-    @apply rounded-full border px-3 py-1.5 text-sm transition
-           border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100 hover:shadow-sm;
-  }
-  .input {
-    @apply w-full rounded-xl border border-slate-300 px-3 py-2 text-base outline-none
-           focus:ring-2 focus:ring-rose-400 focus:border-rose-300;
-  }
-  .card {
-    @apply rounded-3xl border border-slate-200 bg-white shadow-sm;
-  }
-  .frame {
-    /* Gradient 1px frame border */
-    background: linear-gradient(135deg, rgba(251,191,36,.9), rgba(244,114,182,.9), rgba(217,70,239,.9));
-    padding: 1px;
-    border-radius: 28px;
-  }
-  .frame-inner {
-    @apply rounded-[26px] bg-white;
-  }
-}
-
+/* Selection + print */
 ::selection { background: #fecdd3; color: #0f172a; }
 
 @media print {

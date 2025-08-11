@@ -43,8 +43,7 @@ export function parseTime(input: string): number {
   if (str.includes(":")) {
     const parts = str.split(":").map((p) => p.trim());
     if (parts.length === 2) {
-      const m = toNum(parts[0]);
-      const s = toNum(parts[1]);
+      const m = toNum(parts[0]); const s = toNum(parts[1]);
       return clamp(m + s / 60, 0, 600);
     }
   }

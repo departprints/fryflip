@@ -40,14 +40,16 @@ export default function Page() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Read hash on first load
   useEffect(() => {
     try {
       const hash = new URL(window.location.href).hash.replace(/^#/, "");
       if (!hash) return;
       const params = new URLSearchParams(hash);
-      const u = params.get("u"); const t = params.get("t"); const time = params.get("time");
-      const conv = params.get("conv"); const don = params.get("don") as Doneness | null;
+      const u = params.get("u");
+      const t = params.get("t");
+      const time = params.get("time");
+      const conv = params.get("conv");
+      const don = params.get("don") as Doneness | null;
       const th = params.get("th") as Thickness | null;
       if (u === "F" || u === "C") setTempUnit(u);
       if (t) setOvenTemp(Number(t));
@@ -58,7 +60,6 @@ export default function Page() {
     } catch {}
   }, []);
 
-  // Keep hash in sync
   useEffect(() => {
     try {
       const params = new URLSearchParams({
@@ -131,8 +132,8 @@ export default function Page() {
     <main className="mx-auto max-w-5xl px-4 py-10">
       {/* HERO */}
       <header className="mb-8">
-        <div className="frame shadow-lg">
-          <div className="frame-inner p-6 md:p-8">
+        <div className="p-[1px] rounded-[28px] bg-[linear-gradient(135deg,rgba(251,191,36,.9),rgba(244,114,182,.9),rgba(217,70,239,.9))] shadow-lg">
+          <div className="rounded-[26px] bg-white p-6 md:p-8">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-rose-500 text-white font-bold">FF</div>
               <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">FryFlip</h1>
@@ -141,7 +142,8 @@ export default function Page() {
 
             <div className="mt-4 -mx-1 flex flex-wrap gap-2">
               {PRESETS.map((p) => (
-                <button key={p.key} onClick={() => applyPreset(p.key)} className="chip">
+                <button key={p.key} onClick={() => applyPreset(p.key)}
+                  className="rounded-full border border-amber-200 bg-amber-50 text-amber-900 px-3 py-1.5 text-sm hover:bg-amber-100 hover:shadow-sm">
                   {p.label}
                 </button>
               ))}
@@ -153,13 +155,14 @@ export default function Page() {
       {/* Two-column */}
       <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Left: Inputs */}
-        <div className="card p-5">
+        <div className="rounded-3xl border border-slate-200 bg-white shadow-sm p-5">
           <h2 className="mb-4 text-lg font-semibold">From oven</h2>
           <div className="grid grid-cols-1 gap-5">
             <div className="grid grid-cols-[auto,1fr] items-center gap-3">
               <div className="inline-flex overflow-hidden rounded-xl border border-slate-300">
                 {(["F", "C"] as const).map((u) => (
-                  <button key={u} onClick={() => setTempUnit(u)} className={`px-3 py-2 text-sm ${tempUnit === u ? "bg-slate-900 text-white" : "bg-white text-slate-800"}`}>
+                  <button key={u} onClick={() => setTempUnit(u)}
+                    className={`px-3 py-2 text-sm ${tempUnit === u ? "bg-slate-900 text-white" : "bg-white text-slate-800"}`}>
                     °{u}
                   </button>
                 ))}
@@ -168,13 +171,16 @@ export default function Page() {
                 <label className="mb-1 block text-sm font-medium text-slate-700">Oven temperature</label>
                 <input inputMode="numeric" pattern="[0-9]*" value={ovenTemp}
                   onChange={(e) => setOvenTemp(e.target.value === "" ? "" : Number(e.target.value))}
-                  className="input" placeholder={tempUnit === "F" ? "e.g., 400" : "e.g., 200"} />
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-rose-400 focus:border-rose-300"
+                  placeholder={tempUnit === "F" ? "e.g., 400" : "e.g., 200"} />
               </div>
             </div>
 
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-700">Oven time</label>
-              <input value={ovenTime} onChange={(e) => setOvenTime(e.target.value)} className="input" placeholder="minutes (e.g., 30 or 1:15)" />
+              <input value={ovenTime} onChange={(e) => setOvenTime(e.target.value)}
+                className="w-full rounded-xl border border-slate-300 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-rose-400 focus:border-rose-300"
+                placeholder="minutes (e.g., 30 or 1:15)" />
               <p className="mt-1 text-xs text-slate-500">Accepts <strong>30</strong>, <strong>30:00</strong>, or <strong>1:15</strong>.</p>
             </div>
 
@@ -186,7 +192,8 @@ export default function Page() {
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">Doneness</label>
-                <select value={doneness} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDoneness(e.target.value as Doneness)} className="input">
+                <select value={doneness} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDoneness(e.target.value as Doneness)}
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-rose-400 focus:border-rose-300">
                   <option value="lighter">Lighter</option>
                   <option value="standard">Standard</option>
                   <option value="darker">Darker / extra‑crisp</option>
@@ -194,7 +201,8 @@ export default function Page() {
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">Thickness</label>
-                <select value={thickness} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setThickness(e.target.value as Thickness)} className="input">
+                <select value={thickness} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setThickness(e.target.value as Thickness)}
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-rose-400 focus:border-rose-300">
                   <option value="thin">Thin (e.g., fries)</option>
                   <option value="normal">Normal (e.g., nuggets, veg)</option>
                   <option value="thick">Thick (e.g., chicken breast)</option>
@@ -205,7 +213,7 @@ export default function Page() {
         </div>
 
         {/* Right: Result */}
-        <div className="card p-5" ref={cardRef}>
+        <div className="rounded-3xl border border-slate-200 bg-white shadow-sm p-5" ref={cardRef}>
           <h2 className="mb-4 text-lg font-semibold">Your Air‑Fryer Settings</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div><div className="text-xs uppercase text-slate-500">Temperature</div><div className="text-2xl font-bold">{result.tempDisplay}</div></div>
@@ -220,14 +228,14 @@ export default function Page() {
           </ul>
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            <button onClick={copyCard} className="btn"><Copy className="h-4 w-4" />Copy</button>
-            <button onClick={() => window.print()} className="btn"><Printer className="h-4 w-4" />Print</button>
-            <button onClick={resetAll} className="btn"><RefreshCw className="h-4 w-4" />Reset</button>
-            <button onClick={copyShareLink} className="btn"><Share2 className="h-4 w-4" />Share</button>
+            <button onClick={copyCard} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white shadow-sm bg-gradient-to-r from-amber-500 via-rose-500 to-fuchsia-600 hover:brightness-110 active:brightness-95 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2"><Copy className="h-4 w-4" />Copy</button>
+            <button onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white shadow-sm bg-gradient-to-r from-amber-500 via-rose-500 to-fuchsia-600 hover:brightness-110 active:brightness-95 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2"><Printer className="h-4 w-4" />Print</button>
+            <button onClick={resetAll} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white shadow-sm bg-gradient-to-r from-amber-500 via-rose-500 to-fuchsia-600 hover:brightness-110 active:brightness-95 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2"><RefreshCw className="h-4 w-4" />Reset</button>
+            <button onClick={copyShareLink} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white shadow-sm bg-gradient-to-r from-amber-500 via-rose-500 to-fuchsia-600 hover:brightness-110 active:brightness-95 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2"><Share2 className="h-4 w-4" />Share</button>
             {timerSec === null ? (
-              <button onClick={startTimer} className="btn"><TimerIcon className="h-4 w-4" />Start check timer</button>
+              <button onClick={startTimer} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white shadow-sm bg-gradient-to-r from-amber-500 via-rose-500 to-fuchsia-600 hover:brightness-110 active:brightness-95 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2"><TimerIcon className="h-4 w-4" />Start check timer</button>
             ) : (
-              <button onClick={stopTimer} className="btn">Stop timer</button>
+              <button onClick={stopTimer} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white shadow-sm bg-gradient-to-r from-amber-500 via-rose-500 to-fuchsia-600 hover:brightness-110 active:brightness-95 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2">Stop timer</button>
             )}
           </div>
 
@@ -235,39 +243,43 @@ export default function Page() {
         </div>
       </section>
 
-      {/* Calculator Use / Explainer */}
-      <section className="mt-10 frame">
-        <div className="frame-inner p-5 md:p-6">
-          <h3 className="text-lg font-semibold">Calculator Use</h3>
-          <p className="mt-2 text-slate-700">
-            FryFlip reduces oven temperature by ~{tempUnit === "F" ? "25°F" : "15°C"} and time by ~20% as a starting point. If your recipe already uses a convection/fan oven,
-            adjustments are smaller. Thickness & doneness settings nudge time by about ±5%.
-          </p>
-          <div className="mt-3 flex items-start gap-2 rounded-xl border border-slate-200 bg-rose-50 p-3 text-sm text-slate-700">
-            <Info className="mt-0.5 h-4 w-4 text-rose-500" />
-            <p>Always follow food-safety guidance for internal temperatures. Appliances vary—check early.</p>
+      {/* Explainer with gradient frame */}
+      <section className="mt-10">
+        <div className="p-[1px] rounded-[28px] bg-[linear-gradient(135deg,rgba(251,191,36,.9),rgba(244,114,182,.9),rgba(217,70,239,.9))]">
+          <div className="rounded-[26px] bg-white p-5 md:p-6">
+            <h3 className="text-lg font-semibold">Calculator Use</h3>
+            <p className="mt-2 text-slate-700">
+              FryFlip reduces oven temperature by ~{tempUnit === "F" ? "25°F" : "15°C"} and time by ~20% as a starting point. If your recipe already uses a convection/fan oven,
+              adjustments are smaller. Thickness & doneness settings nudge time by about ±5%.
+            </p>
+            <div className="mt-3 flex items-start gap-2 rounded-xl border border-slate-200 bg-rose-50 p-3 text-sm text-slate-700">
+              <Info className="mt-0.5 h-4 w-4 text-rose-500" />
+              <p>Always follow food-safety guidance for internal temperatures. Appliances vary—check early.</p>
+            </div>
+            <AdSlot id="ad-after-use" slot="fryflip-mid" />
           </div>
-          <AdSlot id="ad-after-use" slot="fryflip-mid" />
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="mt-10 frame">
-        <div className="frame-inner p-5 md:p-6">
-          <h3 className="text-lg font-semibold">FAQ</h3>
-          <details className="mt-3 rounded-xl border border-slate-200 p-4 open:bg-amber-50/60">
-            <summary className="cursor-pointer font-medium">Can I convert 425°F for 25 minutes to air fryer?</summary>
-            <p className="mt-2 text-slate-700">Try ~400°F for ~20 minutes; check early and shake halfway. Use the inputs above to personalize.</p>
-          </details>
-          <details className="mt-3 rounded-xl border border-slate-200 p-4 open:bg-amber-50/60">
-            <summary className="cursor-pointer font-medium">Do I need to preheat?</summary>
-            <p className="mt-2 text-slate-700">Some models recommend it. If yours does, preheat briefly before starting. Otherwise, start and check early.</p>
-          </details>
-          <details className="mt-3 rounded-xl border border-slate-200 p-4 open:bg-amber-50/60">
-            <summary className="cursor-pointer font-medium">Why are times different from my friend’s?</summary>
-            <p className="mt-2 text-slate-700">Model wattage, basket size, thickness, and load size vary. Our numbers are a starting point.</p>
-          </details>
-          <AdSlot id="ad-footer" slot="fryflip-footer" />
+      {/* FAQ with gradient frame */}
+      <section className="mt-10">
+        <div className="p-[1px] rounded-[28px] bg-[linear-gradient(135deg,rgba(251,191,36,.9),rgba(244,114,182,.9),rgba(217,70,239,.9))]">
+          <div className="rounded-[26px] bg-white p-5 md:p-6">
+            <h3 className="text-lg font-semibold">FAQ</h3>
+            <details className="mt-3 rounded-xl border border-slate-200 p-4 open:bg-amber-50/60">
+              <summary className="cursor-pointer font-medium">Can I convert 425°F for 25 minutes to air fryer?</summary>
+              <p className="mt-2 text-slate-700">Try ~400°F for ~20 minutes; check early and shake halfway. Use the inputs above to personalize.</p>
+            </details>
+            <details className="mt-3 rounded-xl border border-slate-200 p-4 open:bg-amber-50/60">
+              <summary className="cursor-pointer font-medium">Do I need to preheat?</summary>
+              <p className="mt-2 text-slate-700">Some models recommend it. If yours does, preheat briefly before starting. Otherwise, start and check early.</p>
+            </details>
+            <details className="mt-3 rounded-xl border border-slate-200 p-4 open:bg-amber-50/60">
+              <summary className="cursor-pointer font-medium">Why are times different from my friend’s?</summary>
+              <p className="mt-2 text-slate-700">Model wattage, basket size, thickness, and load size vary. Our numbers are a starting point.</p>
+            </details>
+            <AdSlot id="ad-footer" slot="fryflip-footer" />
+          </div>
         </div>
       </section>
 
@@ -283,7 +295,7 @@ export default function Page() {
               <span>Shake halfway</span>
             </div>
             {timerSec === null ? (
-              <button onClick={startTimer} className="btn px-2 py-1.5"><TimerIcon className="h-4 w-4" />Start</button>
+              <button onClick={startTimer} className="inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-sm font-medium text-white shadow-sm bg-gradient-to-r from-amber-500 via-rose-500 to-fuchsia-600 hover:brightness-110 active:brightness-95 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2"><TimerIcon className="h-4 w-4" />Start</button>
             ) : (
               <span className="text-sm font-semibold tabular-nums">{mm}:{ss}</span>
             )}

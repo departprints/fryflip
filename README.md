@@ -1,22 +1,21 @@
-# FryFlip — Vivid Color Theme (Two-Column + Sticky Bar)
+# FryFlip — Vivid Theme (No @apply)
 
-This bundle upgrades FryFlip to a **colorful gradient theme** while keeping:
-- Two-column **From → To** layout
-- **Sticky mini-result bar** on mobile
-- CLS-safe responsive ad slots
-- Type-safe AdSense trigger and relaxed ESLint
+Purpose: fix Tailwind error `Cannot apply unknown utility class 'gap-2'` by removing all `@apply` usage.
+All styling is inline via className. Includes two‑column layout, colorful gradients, and sticky mobile bar.
 
-## Apply
+## Install
 ```bash
 cd ~/fryflip
-ls -lh ~/Downloads/fryflip_theme_vivid.zip
-unzip -o ~/Downloads/fryflip_theme_vivid.zip -d .
+unzip -o ~/Downloads/fryflip_theme_vivid_noapply.zip -d .
 npm install lucide-react
 npm run build
 git add -A
-git commit -m "Vivid theme: gradient hero, colorful chips, sticky bar"
+git commit -m "Vivid theme without @apply (fix Tailwind gap-2 error)"
 git push
 vercel --prod
 ```
 
-**Remember:** set Vercel env var `NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-xxxxxxxxxxxxxxx` and update `public/ads.txt` with your publisher ID.
+Make sure Vercel env var is set:
+  NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-xxxxxxxxxxxxxxxx
+
+And update public/ads.txt with your publisher ID.
