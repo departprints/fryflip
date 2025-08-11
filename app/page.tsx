@@ -31,10 +31,6 @@ export default function Page() {
     if (!cardRef.current) return;
     const text = cardRef.current.innerText;
     navigator.clipboard.writeText(text).catch(() => {});
-    try {
-      const blob = new Blob([JSON.stringify({ name: "copy_result", t: Date.now() })], { type: "application/json" });
-      navigator.sendBeacon("/api/metrics", blob);
-    } catch {}
   }
 
   function resetAll() {
@@ -44,16 +40,12 @@ export default function Page() {
     setIsConvectionRecipe(false);
     setDoneness("standard");
     setThickness("normal");
-    try {
-      const blob = new Blob([JSON.stringify({ name: "reset", t: Date.now() })], { type: "application/json" });
-      navigator.sendBeacon("/api/metrics", blob);
-    } catch {}
   }
 
   useEffect(() => {
     try {
-      // @ts-ignore
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
+      window.adsbygoogle = window.adsbygoogle || [];
+      window.adsbygoogle.push({});
     } catch {}
   }, []);
 
@@ -61,7 +53,7 @@ export default function Page() {
     <main className="mx-auto max-w-3xl px-4 py-10">
       <header className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">FryFlip</h1>
-        <p className="mt-2 text-gray-600">Turn any oven recipe into air‑fryer settings in one click. Rule‑of‑thumb estimates—always check doneness early.</p>
+        <p className="mt-2 text-gray-600">Turn any oven recipe into air-fryer settings in one click. Rule-of-thumb estimates—always check doneness early.</p>
       </header>
 
       <section className="grid gap-6 rounded-2xl border border-gray-200 p-5 shadow-sm">
@@ -118,19 +110,23 @@ export default function Page() {
             <label className="mb-1 block text-sm font-medium">Doneness preference</label>
             <select
               value={doneness}
-              onChange={(e) => setDoneness(e.target.value as any)}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                setDoneness(e.target.value as "lighter" | "standard" | "darker")
+              }
               className="w-full rounded-xl border border-gray-300 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-gray-900"
             >
               <option value="lighter">Lighter</option>
               <option value="standard">Standard</option>
-              <option value="darker">Darker / extra‑crisp</option>
+              <option value="darker">Darker / extra-crisp</option>
             </select>
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium">Food thickness</label>
             <select
               value={thickness}
-              onChange={(e) => setThickness(e.target.value as any)}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                setThickness(e.target.value as "thin" | "normal" | "thick")
+              }
               className="w-full rounded-xl border border-gray-300 px-3 py-2 text-base outline-none focus:ring-2 focus:ring-gray-900"
             >
               <option value="thin">Thin (e.g., fries)</option>
@@ -142,7 +138,7 @@ export default function Page() {
 
         <div ref={cardRef} className="rounded-2xl border border-gray-300 bg-gray-50 p-4">
           <div className="flex items-start justify-between gap-3">
-            <h2 className="text-xl font-semibold">Your Air‑Fryer Settings</h2>
+            <h2 className="text-xl font-semibold">Your Air-Fryer Settings</h2>
             <div className="flex items-center gap-2">
               <button onClick={copyCard} className="rounded-xl border border-gray-300 px-3 py-2 text-sm hover:bg-white" title="Copy">
                 <Copy className="inline h-4 w-4" />
@@ -172,7 +168,7 @@ export default function Page() {
           </div>
 
           <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-gray-700">
-            <li>These are rule‑of‑thumb estimates. Check doneness early, especially for thick foods.</li>
+            <li>These are rule-of-thumb estimates. Check doneness early, especially for thick foods.</li>
             <li>If your oven recipe already used convection, adjustments are smaller.</li>
             {result.notes.map((n, i) => (
               <li key={i}>{n}</li>
@@ -187,12 +183,12 @@ export default function Page() {
         <h3 className="text-xl font-semibold">How FryFlip calculates</h3>
         <p className="text-gray-700">
           FryFlip applies common kitchen heuristics: reduce oven temperature by ~{tempUnit === "F" ? "25°F" : "15°C"} and reduce time by ~20%. If your original recipe already
-          used a convection (fan) oven, we use smaller adjustments. Doneness and thickness nudges fine‑tune for preference and food size.
+          used a convection (fan) oven, we use smaller adjustments. Doneness and thickness nudges fine-tune for preference and food size.
         </p>
         <div className="flex items-start gap-2 rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
           <Info className="mt-0.5 h-4 w-4" />
           <p>
-            Always follow food‑safety guidance for internal temperatures. This tool provides estimates only; appliances vary widely.
+            Always follow food-safety guidance for internal temperatures. This tool provides estimates only; appliances vary widely.
           </p>
         </div>
 
@@ -227,8 +223,8 @@ export default function Page() {
             name: "FryFlip",
             applicationCategory: "Calculator",
             operatingSystem: "Web",
-            description: "Turn any oven recipe into air‑fryer settings in one click.",
-            url: "https://fryflip.example",
+            description: "Turn any oven recipe into air-fryer settings in one click.",
+            url: "https://fryflip.xyz",
           }),
         }}
       />
@@ -265,7 +261,7 @@ export default function Page() {
 
       <footer className="mt-16 border-t pt-8 text-sm text-gray-500">
         <p>Not affiliated with any appliance brands. Estimates only. © {new Date().getFullYear()} FryFlip.</p>
-        <p className="mt-2">Made by <a className="underline" href="https://your‑network.example">Your Micro‑lab</a></p>
+        <p className="mt-2">Made by <a className="underline" href="https://your-network.example">Your Micro-lab</a></p>
       </footer>
     </main>
   );

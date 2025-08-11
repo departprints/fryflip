@@ -8,8 +8,8 @@ export default function AdSlot({ id, slot }: Props) {
   const internal = useId();
   useEffect(() => {
     try {
-      // @ts-ignore
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
+      window.adsbygoogle = window.adsbygoogle || [];
+      window.adsbygoogle.push({});
     } catch {}
   }, []);
 

@@ -11,7 +11,7 @@ export function convertToAirFryer(i: Inputs) {
   const ovenTemp = clamp(i.ovenTemp, 100, i.tempUnit === "F" ? 550 : 290);
   const minutes = clamp(i.ovenMinutes, 1, 240);
 
-  let tempDropF = i.convectionRecipe ? 10 : 25;
+  const tempDropF = i.convectionRecipe ? 10 : 25;
   let timeFactor = i.convectionRecipe ? 0.9 : 0.8;
 
   if (i.doneness === "lighter") timeFactor *= 0.95;
