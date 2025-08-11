@@ -6,10 +6,8 @@ import AdSlot from "@/components/AdSlot";
 import { convertToAirFryer, formatMinutes, parseTime } from "@/lib/conversion";
 
 function sendMetric(name: string, data?: Record<string, unknown>) {
-  try {
-    const blob = new Blob([JSON.stringify({ name, ...data, t: Date.now() })], { type: "application/json" });
-    navigator.sendBeacon("/api/metrics", blob);
-  } catch {}
+  try { const blob = new Blob([JSON.stringify({ name, ...data, t: Date.now() })], { type: "application/json" });
+    navigator.sendBeacon("/api/metrics", blob); } catch {}
 }
 
 const PRESETS = [
@@ -36,17 +34,20 @@ export default function Page() {
   const [halfAnnounced, setHalfAnnounced] = useState(false);
   const [showMini, setShowMini] = useState(false);
 
+  useEffect(() => {
+    const onScroll = () => setShowMini(window.scrollY > 220);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   // Read hash on first load
   useEffect(() => {
     try {
       const hash = new URL(window.location.href).hash.replace(/^#/, "");
       if (!hash) return;
       const params = new URLSearchParams(hash);
-      const u = params.get("u");
-      const t = params.get("t");
-      const time = params.get("time");
-      const conv = params.get("conv");
-      const don = params.get("don") as Doneness | null;
+      const u = params.get("u"); const t = params.get("t"); const time = params.get("time");
+      const conv = params.get("conv"); const don = params.get("don") as Doneness | null;
       const th = params.get("th") as Thickness | null;
       if (u === "F" || u === "C") setTempUnit(u);
       if (t) setOvenTemp(Number(t));
@@ -68,22 +69,12 @@ export default function Page() {
     } catch {}
   }, [tempUnit, ovenTemp, ovenTime, isConvectionRecipe, doneness, thickness]);
 
-  // Toggle sticky mini-result bar
-  useEffect(() => {
-    const onScroll = () => setShowMini(window.scrollY > 220);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   const result = useMemo(() => {
     const minutes = parseTime(ovenTime);
     return convertToAirFryer({
       ovenTemp: ovenTemp === "" ? 0 : Number(ovenTemp),
-      tempUnit,
-      ovenMinutes: minutes,
-      convectionRecipe: isConvectionRecipe,
-      doneness,
-      thickness,
+      tempUnit, ovenMinutes: minutes, convectionRecipe: isConvectionRecipe,
+      doneness, thickness,
     });
   }, [ovenTemp, tempUnit, ovenTime, isConvectionRecipe, doneness, thickness]);
 
@@ -95,20 +86,15 @@ export default function Page() {
     navigator.clipboard.writeText(text).then(() => sendMetric("copy_result")).catch(() => {});
   }
   function copyShareLink() { try { navigator.clipboard.writeText(window.location.href); sendMetric("share_link"); } catch {} }
-  function resetAll() {
-    setTempUnit("F"); setOvenTemp(400); setOvenTime("30"); setIsConvectionRecipe(false);
-    setDoneness("standard"); setThickness("normal"); sendMetric("reset");
-  }
+  function resetAll() { setTempUnit("F"); setOvenTemp(400); setOvenTime("30"); setIsConvectionRecipe(false); setDoneness("standard"); setThickness("normal"); sendMetric("reset"); }
   function fToC(f: number) { return Math.round(((f - 32) * 5) / 9); }
   function applyPreset(key: string) {
-    const p = PRESETS.find((x) => x.key === key);
-    if (!p) return;
+    const p = PRESETS.find((x) => x.key === key); if (!p) return;
     const t = tempUnit === "F" ? p.tF : fToC(p.tF);
     setOvenTemp(t); setOvenTime(String(p.m)); setIsConvectionRecipe(p.conv);
     setDoneness(p.don as Doneness); setThickness(p.th as Thickness);
     sendMetric("preset_apply", { key });
   }
-
   function startTimer() {
     const totalSec = Math.max(1, Math.round(parseTime(ovenTime) * 60 * 0.9));
     setTimerSec(totalSec); setTimerStart(totalSec); setHalfAnnounced(false);
@@ -116,7 +102,6 @@ export default function Page() {
   }
   function stopTimer() { setTimerSec(null); setHalfAnnounced(false); sendMetric("timer_stop"); }
 
-  // Timer tick
   useEffect(() => {
     if (timerSec === null) return;
     const id = setInterval(() => {
@@ -131,7 +116,6 @@ export default function Page() {
     return () => clearInterval(id);
   }, [timerSec, timerStart, halfAnnounced]);
 
-  // Trigger AdSense in SPA
   useEffect(() => {
     try {
       const w = window as unknown as { adsbygoogle: Array<Record<string, unknown>> };
@@ -145,30 +129,37 @@ export default function Page() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
-      {/* Title & Presets */}
-      <header className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Oven → Air-Fryer Converter</h1>
-        <p className="mt-2 text-slate-600">Instantly convert oven recipes to air-fryer settings. These are starting-point estimates—always check early.</p>
-        <div className="mt-3 -mx-1 flex flex-wrap gap-2">
-          {PRESETS.map((p) => (
-            <button key={p.key} onClick={() => applyPreset(p.key)} className="chip">{p.label}</button>
-          ))}
+      {/* HERO */}
+      <header className="mb-8">
+        <div className="frame shadow-lg">
+          <div className="frame-inner p-6 md:p-8">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-rose-500 text-white font-bold">FF</div>
+              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">FryFlip</h1>
+            </div>
+            <p className="mt-2 text-slate-700">Turn any oven recipe into air-fryer settings in one click. Rule‑of‑thumb estimates—always check doneness early.</p>
+
+            <div className="mt-4 -mx-1 flex flex-wrap gap-2">
+              {PRESETS.map((p) => (
+                <button key={p.key} onClick={() => applyPreset(p.key)} className="chip">
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </header>
 
-      {/* Two-column "From → To" */}
+      {/* Two-column */}
       <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Left: Inputs */}
         <div className="card p-5">
           <h2 className="mb-4 text-lg font-semibold">From oven</h2>
-
           <div className="grid grid-cols-1 gap-5">
-            {/* Temp unit + input */}
             <div className="grid grid-cols-[auto,1fr] items-center gap-3">
-              <div className="inline-flex overflow-hidden rounded-lg border border-slate-300">
+              <div className="inline-flex overflow-hidden rounded-xl border border-slate-300">
                 {(["F", "C"] as const).map((u) => (
-                  <button key={u} onClick={() => setTempUnit(u)}
-                    className={`px-3 py-2 text-sm ${tempUnit === u ? "bg-slate-900 text-white" : "bg-white text-slate-800"}`}>
+                  <button key={u} onClick={() => setTempUnit(u)} className={`px-3 py-2 text-sm ${tempUnit === u ? "bg-slate-900 text-white" : "bg-white text-slate-800"}`}>
                     °{u}
                   </button>
                 ))}
@@ -181,20 +172,17 @@ export default function Page() {
               </div>
             </div>
 
-            {/* Time */}
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-700">Oven time</label>
               <input value={ovenTime} onChange={(e) => setOvenTime(e.target.value)} className="input" placeholder="minutes (e.g., 30 or 1:15)" />
               <p className="mt-1 text-xs text-slate-500">Accepts <strong>30</strong>, <strong>30:00</strong>, or <strong>1:15</strong>.</p>
             </div>
 
-            {/* Convection? */}
-            <div className="flex items-center gap-3 rounded-lg border border-slate-300 p-3">
-              <input id="conv" type="checkbox" checked={isConvectionRecipe} onChange={(e) => setIsConvectionRecipe(e.target.checked)} className="h-4 w-4 accent-indigo-600" />
+            <div className="flex items-center gap-3 rounded-xl border border-slate-300 p-3">
+              <input id="conv" type="checkbox" checked={isConvectionRecipe} onChange={(e) => setIsConvectionRecipe(e.target.checked)} className="h-4 w-4 accent-rose-500" />
               <label htmlFor="conv" className="text-sm">This oven recipe already uses <strong>convection (fan)</strong></label>
             </div>
 
-            {/* Preferences */}
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">Doneness</label>
@@ -219,7 +207,6 @@ export default function Page() {
         {/* Right: Result */}
         <div className="card p-5" ref={cardRef}>
           <h2 className="mb-4 text-lg font-semibold">Your Air‑Fryer Settings</h2>
-
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div><div className="text-xs uppercase text-slate-500">Temperature</div><div className="text-2xl font-bold">{result.tempDisplay}</div></div>
             <div><div className="text-xs uppercase text-slate-500">Time</div><div className="text-2xl font-bold">{formatMinutes(result.minutes)}</div></div>
@@ -244,57 +231,56 @@ export default function Page() {
             )}
           </div>
 
-          {/* Ad #1 under results (high viewability) */}
           <AdSlot id="ad-under-result" slot="fryflip-top" />
         </div>
       </section>
 
       {/* Calculator Use / Explainer */}
-      <section className="mt-10 card p-5">
-        <h3 className="text-lg font-semibold">Calculator Use</h3>
-        <p className="mt-2 text-slate-700">
-          FryFlip reduces oven temperature by ~{tempUnit === "F" ? "25°F" : "15°C"} and time by ~20% as a starting point. If your recipe already uses a convection/fan oven,
-          adjustments are smaller. Thickness & doneness settings nudge time up or down by ~5%.
-        </p>
-        <div className="mt-3 flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
-          <Info className="mt-0.5 h-4 w-4 text-indigo-600" />
-          <p>Always follow food-safety guidance for internal temperatures. Appliances vary widely—check early.</p>
+      <section className="mt-10 frame">
+        <div className="frame-inner p-5 md:p-6">
+          <h3 className="text-lg font-semibold">Calculator Use</h3>
+          <p className="mt-2 text-slate-700">
+            FryFlip reduces oven temperature by ~{tempUnit === "F" ? "25°F" : "15°C"} and time by ~20% as a starting point. If your recipe already uses a convection/fan oven,
+            adjustments are smaller. Thickness & doneness settings nudge time by about ±5%.
+          </p>
+          <div className="mt-3 flex items-start gap-2 rounded-xl border border-slate-200 bg-rose-50 p-3 text-sm text-slate-700">
+            <Info className="mt-0.5 h-4 w-4 text-rose-500" />
+            <p>Always follow food-safety guidance for internal temperatures. Appliances vary—check early.</p>
+          </div>
+          <AdSlot id="ad-after-use" slot="fryflip-mid" />
         </div>
-
-        {/* Ad #2 after Calculator Use */}
-        <AdSlot id="ad-after-use" slot="fryflip-mid" />
       </section>
 
       {/* FAQ */}
-      <section className="mt-10 card p-5">
-        <h3 className="text-lg font-semibold">FAQ</h3>
-        <details className="mt-3 rounded-lg border border-slate-200 p-4">
-          <summary className="cursor-pointer font-medium">Can I convert 425°F for 25 minutes to air fryer?</summary>
-          <p className="mt-2 text-slate-700">Try ~400°F for ~20 minutes; check early and shake halfway. Use the inputs above to personalize.</p>
-        </details>
-        <details className="mt-3 rounded-lg border border-slate-200 p-4">
-          <summary className="cursor-pointer font-medium">Do I need to preheat?</summary>
-          <p className="mt-2 text-slate-700">Some models recommend it. If yours does, preheat briefly before starting. Otherwise, start and check early.</p>
-        </details>
-        <details className="mt-3 rounded-lg border border-slate-200 p-4">
-          <summary className="cursor-pointer font-medium">Why are times different from my friend’s?</summary>
-          <p className="mt-2 text-slate-700">Model wattage, basket size, thickness, and load size vary. Our numbers are a starting point.</p>
-        </details>
-
-        {/* Ad #3 bottom */}
-        <AdSlot id="ad-footer" slot="fryflip-footer" />
+      <section className="mt-10 frame">
+        <div className="frame-inner p-5 md:p-6">
+          <h3 className="text-lg font-semibold">FAQ</h3>
+          <details className="mt-3 rounded-xl border border-slate-200 p-4 open:bg-amber-50/60">
+            <summary className="cursor-pointer font-medium">Can I convert 425°F for 25 minutes to air fryer?</summary>
+            <p className="mt-2 text-slate-700">Try ~400°F for ~20 minutes; check early and shake halfway. Use the inputs above to personalize.</p>
+          </details>
+          <details className="mt-3 rounded-xl border border-slate-200 p-4 open:bg-amber-50/60">
+            <summary className="cursor-pointer font-medium">Do I need to preheat?</summary>
+            <p className="mt-2 text-slate-700">Some models recommend it. If yours does, preheat briefly before starting. Otherwise, start and check early.</p>
+          </details>
+          <details className="mt-3 rounded-xl border border-slate-200 p-4 open:bg-amber-50/60">
+            <summary className="cursor-pointer font-medium">Why are times different from my friend’s?</summary>
+            <p className="mt-2 text-slate-700">Model wattage, basket size, thickness, and load size vary. Our numbers are a starting point.</p>
+          </details>
+          <AdSlot id="ad-footer" slot="fryflip-footer" />
+        </div>
       </section>
 
-      {/* Sticky mini-result bar (mobile only) */}
+      {/* Sticky mini-result bar (mobile) */}
       <div className={`mini-bar fixed inset-x-0 bottom-0 z-40 md:hidden transition-transform duration-300 ${showMini ? "translate-y-0" : "translate-y-full"}`}>
         <div className="mx-auto max-w-5xl px-3 pb-3">
-          <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white/95 px-3 py-2 shadow-lg backdrop-blur">
+          <div className="flex items-center justify-between rounded-xl border border-rose-200 bg-gradient-to-r from-amber-100 via-rose-100 to-fuchsia-100 px-3 py-2 shadow-lg backdrop-blur">
             <div className="text-sm">
               <span className="font-semibold">{result.tempDisplay}</span>
               <span className="mx-2">•</span>
               <span className="font-semibold">{formatMinutes(result.minutes)}</span>
               <span className="mx-2">•</span>
-              <span className="">Shake halfway</span>
+              <span>Shake halfway</span>
             </div>
             {timerSec === null ? (
               <button onClick={startTimer} className="btn px-2 py-1.5"><TimerIcon className="h-4 w-4" />Start</button>
@@ -305,7 +291,7 @@ export default function Page() {
         </div>
       </div>
 
-      <footer className="mt-16 border-t pt-8 text-sm text-slate-500">
+      <footer className="mt-16 border-t pt-8 text-sm text-slate-600">
         <p>Not affiliated with any appliance brands. Estimates only. © {new Date().getFullYear()} FryFlip.</p>
         <p className="mt-2">Made by <a className="underline" href="https://your-network.example">Your Micro-lab</a></p>
       </footer>

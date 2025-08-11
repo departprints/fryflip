@@ -6,7 +6,6 @@ type Props = { id?: string; slot?: string };
 
 export default function AdSlot({ id, slot }: Props) {
   const internal = useId();
-
   useEffect(() => {
     try {
       const w = window as unknown as { adsbygoogle: Array<Record<string, unknown>> };

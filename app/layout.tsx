@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           crossOrigin="anonymous"
         />
       </head>
-      <body className="min-h-screen bg-white text-slate-900 antialiased">
+      <body className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-amber-50 text-slate-900 antialiased">
         {children}
       </body>
     </html>

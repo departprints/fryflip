@@ -65,12 +65,7 @@ export function formatMinutes(minutes: number): string {
   return `~${h} hr ${m} min`;
 }
 
-function clamp(n: number, min: number, max: number) {
-  return Math.min(Math.max(n, min), max);
-}
-function toNum(s: string) {
-  const n = Number(s.replace(/[^0-9.]/g, ""));
-  return isNaN(n) ? 0 : n;
-}
+function clamp(n: number, min: number, max: number) { return Math.min(Math.max(n, min), max); }
+function toNum(s: string) { const n = Number(s.replace(/[^0-9.]/g, "")); return isNaN(n) ? 0 : n; }
 function cToF(c: number) { return (c * 9) / 5 + 32; }
 function fToC(f: number) { return ((f - 32) * 5) / 9; }
