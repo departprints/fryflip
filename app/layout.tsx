@@ -26,19 +26,14 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // Use your AdSense publisher ID via env var on Vercel:
-  // NEXT_PUBLIC_ADSENSE_CLIENT = ca-pub-xxxxxxxxxxxxxxxx
   const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-0000000000000000";
   return (
     <html lang="en">
       <head>
-        {/* Performance preconnects */}
+        <meta name="google-adsense-account" content="ca-pub-3893604961345427"></meta>
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
-        {/* AdSense Auto ads verification tag */}
-        <meta name="google-adsense-account" content={clientId} />
-        {/* AdSense loader. With Auto ads enabled in your AdSense UI, this is all that is required. */}
         <Script
           id="adsbygoogle-init"
           async
